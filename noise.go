@@ -66,10 +66,26 @@ func lerp(a, b, t float64) float64 {
 }
 
 func graddot2(seed, gridx, gridy uint32, fracx, fracy float64) float64 {
-	hx, hy, _ := Hash3(gridx, gridy, seed)
-	gradx := float64(hx)/float64(math.MaxUint32)*2 - 1
-	grady := float64(hy)/float64(math.MaxUint32)*2 - 1
-	return gradx*fracx + grady*fracy
+	h, _, _ := Hash3(seed, gridx, gridy)
+	switch h & 7 {
+	case 0:
+		return fracx + fracy // (1, 1)
+	case 1:
+		return fracx - fracy // (1, -1)
+	case 2:
+		return -fracx + fracy // (-1, 1)
+	case 3:
+		return -fracx - fracy // (-1, -1)
+	case 4:
+		return fracx // (1, 0)
+	case 5:
+		return -fracx // (-1, 0)
+	case 6:
+		return fracy // (0, 1)
+	case 7:
+		return -fracy // (0, -1)
+	}
+	panic("unreachable")
 }
 
 // Sampler2 is a function that returns a value at position (x, y). The value range is [0, 1].
